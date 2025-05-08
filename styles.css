@@ -1,0 +1,371 @@
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #475569;
+    --success-color: #16a34a;
+    --danger-color: #dc2626;
+    --light-color: #f8fafc;
+    --dark-color: #0f172a;
+    --card-bg: #ffffff;
+    --body-bg: #f1f5f9;
+    --nav-bg: #ffffff;
+    --nav-text: #1e293b;
+    --nav-hover: #e2e8f0;
+}
+
+body {
+    background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark-color);
+    line-height: 1.5;
+}
+
+.navbar {
+    background: linear-gradient(90deg, #4b6cb7, #182848) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 600;
+    padding: 0.7rem 1.2rem !important;
+    margin: 0 0.3rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.nav-link:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link.active {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    color: #1a2a6c;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.flashcard {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+    min-height: 300px;
+    cursor: pointer;
+    perspective: 1000px;
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard .front,
+.flashcard .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 15px;
+    background: white;
+}
+
+.flashcard .front {
+    transform: rotateY(0deg);
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+}
+
+.flashcard .back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+}
+
+#flashcardWord {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    white-space: pre-wrap;
+    color: #1a2a6c;
+}
+
+#flashcardDefinition {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    text-align: center;
+    white-space: pre-wrap;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    color: #2d3748;
+}
+
+.section {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.section.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #4b6cb7, #182848);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #182848, #4b6cb7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #11998e, #38ef7d);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(45deg, #38ef7d, #11998e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #cb2d3e, #ef473a);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #ef473a, #cb2d3e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.6rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.1);
+    border-color: #1a2a6c;
+}
+
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: linear-gradient(45deg, #4b6cb7, #182848);
+    color: white;
+    font-weight: 500;
+    border: none;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(75, 108, 183, 0.05);
+}
+
+#quizOptions .btn {
+    margin-bottom: 0.5rem;
+    text-align: left;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+#quizOptions .btn:hover {
+    transform: translateX(5px);
+}
+
+#quizOptions .btn.correct {
+    background: linear-gradient(45deg, #11998e, #38ef7d);
+    color: white;
+}
+
+#quizOptions .btn.incorrect {
+    background: linear-gradient(45deg, #cb2d3e, #ef473a);
+    color: white;
+}
+
+#quizResults {
+    text-align: center;
+    padding: 2rem;
+}
+
+#quizScore {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 1rem 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.5rem 0;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .flashcard {
+        min-height: 250px;
+    }
+    
+    #flashcardWord {
+        font-size: 1.5rem;
+    }
+    
+    #flashcardDefinition {
+        font-size: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}
+
+.flashcard-navigation {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 10;
+}
+
+.flashcard-navigation button {
+    background: rgba(75, 108, 183, 0.2);
+    border: none;
+    color: #4b6cb7;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.flashcard-navigation button:hover {
+    background: rgba(75, 108, 183, 0.3);
+    transform: scale(1.1);
+}
+
+.flashcard-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Audio Section */
+#audioWords {
+    min-height: 200px;
+}
+
+/* Badges */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.bg-warning {
+    background: linear-gradient(45deg, #f7971e, #ffd200) !important;
+}
+
+.bg-info {
+    background: linear-gradient(45deg, #2193b0, #6dd5ed) !important;
+}
+
+.bg-success {
+    background: linear-gradient(45deg, #11998e, #38ef7d) !important;
+} 

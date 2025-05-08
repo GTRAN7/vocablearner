@@ -75,12 +75,12 @@ function initializeNavigation() {
     });
 }
 
-// Initialize navigation when the page loads
+// Initialize when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     initializeNavigation();
     updateVocabList();
-    updateAudioWords();
     updateFlashcard();
+    generateQuiz();
 });
 
 // Save vocabulary to local storage
@@ -94,7 +94,6 @@ clearWordsBtn.addEventListener('click', () => {
         vocabulary = [];
         saveVocabulary();
         updateVocabList();
-        updateAudioWords();
         updateFlashcard();
     }
 });
@@ -149,7 +148,6 @@ function deleteWord(index) {
     vocabulary.splice(index, 1);
     saveVocabulary();
     updateVocabList();
-    updateAudioWords();
 }
 
 // Load preset vocabulary list
@@ -200,7 +198,6 @@ document.getElementById('loadPresetBtn').addEventListener('click', async () => {
         
         saveVocabulary();
         updateVocabList();
-        updateAudioWords();
         updateFlashcard();
         alert(`Successfully loaded ${vocabulary.length} words from ${selectedPreset}`);
     } catch (error) {
@@ -248,7 +245,6 @@ importBtn.addEventListener('click', () => {
                 
                 saveVocabulary();
                 updateVocabList();
-                updateAudioWords();
                 updateFlashcard();
                 alert(`Successfully imported ${vocabulary.length} words`);
             } catch (error) {

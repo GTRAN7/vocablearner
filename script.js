@@ -181,12 +181,34 @@ document.getElementById('loadPresetBtn').addEventListener('click', async () => {
         
         // Add new words
         for (const line of dataLines) {
-            const parts = line.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
-            if (parts.length >= 2) {
+            // Parse CSV line properly handling quoted values
+            const parts = [];
+            let currentPart = '';
+            let insideQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    parts.push(currentPart.trim());
+                    currentPart = '';
+                } else {
+                    currentPart += char;
+                }
+            }
+            // Add the last part
+            parts.push(currentPart.trim());
+            
+            // Remove surrounding quotes from each part
+            const cleanParts = parts.map(part => part.replace(/^"|"$/g, ''));
+            
+            if (cleanParts.length >= 2) {
                 vocabulary.push({
-                    word: parts[0],
-                    definition: parts[1],
-                    example: parts[2] || '',
+                    word: cleanParts[0],
+                    definition: cleanParts[1],
+                    example: cleanParts[2] || '',
                     knowledgeLevel: KNOWLEDGE_LEVELS.BEGINNER
                 });
             }
@@ -228,12 +250,34 @@ importBtn.addEventListener('click', () => {
                 
                 // Add new words
                 for (const line of dataLines) {
-                    const parts = line.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
-                    if (parts.length >= 2) {
+                    // Parse CSV line properly handling quoted values
+                    const parts = [];
+                    let currentPart = '';
+                    let insideQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        
+                        if (char === '"') {
+                            insideQuotes = !insideQuotes;
+                        } else if (char === ',' && !insideQuotes) {
+                            parts.push(currentPart.trim());
+                            currentPart = '';
+                        } else {
+                            currentPart += char;
+                        }
+                    }
+                    // Add the last part
+                    parts.push(currentPart.trim());
+                    
+                    // Remove surrounding quotes from each part
+                    const cleanParts = parts.map(part => part.replace(/^"|"$/g, ''));
+                    
+                    if (cleanParts.length >= 2) {
                         vocabulary.push({
-                            word: parts[0],
-                            definition: parts[1],
-                            example: parts[2] || '',
+                            word: cleanParts[0],
+                            definition: cleanParts[1],
+                            example: cleanParts[2] || '',
                             knowledgeLevel: KNOWLEDGE_LEVELS.BEGINNER
                         });
                     }

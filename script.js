@@ -36,6 +36,21 @@ const startAudio = document.getElementById('startAudio');
 const stopAudio = document.getElementById('stopAudio');
 const audioPlayer = document.getElementById('audioPlayer');
 
+// Pagination variables
+let currentPage = 1;
+const itemsPerPage = 10;
+
+// Matching Quiz variables
+let matchingQuiz = {
+    terms: [],
+    definitions: [],
+    matches: new Map(),
+    lives: 3,
+    timer: null,
+    startTime: null,
+    bestTime: localStorage.getItem('matchingBestTime') || '--:--'
+};
+
 // Navigation
 function initializeNavigation() {
     // Hide all sections except the first one
@@ -81,6 +96,36 @@ document.addEventListener('DOMContentLoaded', () => {
     updateVocabList();
     updateFlashcard();
     generateQuiz();
+    
+    // Load best time from localStorage
+    const savedBestTime = localStorage.getItem('matchingBestTime');
+    if (savedBestTime) {
+        matchingQuiz.bestTime = savedBestTime;
+        document.getElementById('bestTime').textContent = savedBestTime;
+    }
+
+    // Add event listener for new word form
+    document.getElementById('newWordForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const word = document.getElementById('newWord').value.trim();
+        const definition = document.getElementById('newDefinition').value.trim();
+        const example = document.getElementById('newExample').value.trim();
+        
+        if (word && definition) {
+            vocabulary.push({
+                word,
+                definition,
+                example,
+                knowledgeLevel: KNOWLEDGE_LEVELS.BEGINNER
+            });
+            saveVocabulary();
+            updateVocabList();
+            updateFlashcard();
+            
+            // Clear form
+            e.target.reset();
+        }
+    });
 });
 
 // Save vocabulary to local storage
@@ -101,7 +146,15 @@ clearWordsBtn.addEventListener('click', () => {
 // Update vocabulary list
 function updateVocabList() {
     vocabList.innerHTML = '';
-    vocabulary.forEach((item, index) => {
+    
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedVocab = vocabulary.slice(startIndex, endIndex);
+    
+    // Display paginated words
+    paginatedVocab.forEach((item, index) => {
+        const actualIndex = startIndex + index;
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${item.word}</td>
@@ -113,13 +166,41 @@ function updateVocabList() {
                 </span>
             </td>
             <td>
-                <button class="btn btn-danger btn-sm" onclick="deleteWord(${index})">
+                <button class="btn btn-danger btn-sm" onclick="deleteWord(${actualIndex})">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         `;
         vocabList.appendChild(row);
     });
+    
+    // Update pagination
+    const totalPages = Math.ceil(vocabulary.length / itemsPerPage);
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = `
+        <nav aria-label="Vocabulary list pagination">
+            <ul class="pagination mb-0">
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}, event)">Previous</a>
+                </li>
+                <li class="page-item">
+                    <span class="page-link">Page</span>
+                </li>
+                <li class="page-item">
+                    <input type="number" class="form-control page-input" 
+                           value="${currentPage}" min="1" max="${totalPages}"
+                           onchange="changePage(this.value, event)"
+                           style="width: 60px; text-align: center;">
+                </li>
+                <li class="page-item">
+                    <span class="page-link">of ${totalPages}</span>
+                </li>
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}, event)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    `;
 }
 
 function getKnowledgeLevelBadgeColor(level) {
@@ -554,6 +635,17 @@ function checkQuizAnswer(answer) {
     
     if (answer === question.correctAnswer) {
         quizScoreCount++;
+        
+        // Increase knowledge level for correct answer
+        const wordIndex = vocabulary.findIndex(item => item.word === answer);
+        if (wordIndex !== -1) {
+            const word = vocabulary[wordIndex];
+            if (word.knowledgeLevel < KNOWLEDGE_LEVELS.MASTERED) {
+                word.knowledgeLevel = (word.knowledgeLevel || KNOWLEDGE_LEVELS.BEGINNER) + 1;
+                word.lastUsed = Date.now();
+                saveVocabulary();
+            }
+        }
     }
     
     checkAnswer.classList.add('d-none');
@@ -747,7 +839,347 @@ audioInterval.addEventListener('change', () => {
     audioIntervalValue = value;
 });
 
-// Initialize
+// Load the features
 updateVocabList();
 updateFlashcard();
-generateQuiz(); 
+generateQuiz();
+
+// Add pagination function
+function changePage(newPage, event) {
+    if (event) {
+        event.preventDefault();
+    }
+    const totalPages = Math.ceil(vocabulary.length / itemsPerPage);
+    newPage = parseInt(newPage);
+    if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        updateVocabList();
+    }
+}
+
+// Matching Quiz Functions
+function startMatchingQuiz() {
+    if (vocabulary.length < 10) {
+        alert('Please add at least 10 words to start the matching quiz');
+        return;
+    }
+
+    // Reset quiz state
+    matchingQuiz.matches.clear();
+    matchingQuiz.lives = 3;
+    matchingQuiz.terms = [];
+    matchingQuiz.definitions = [];
+
+    // Reset hearts - show all hearts as active
+    const hearts = document.querySelectorAll('#matchingLives i');
+    hearts.forEach(heart => {
+        heart.classList.remove('broken', 'heart-break');
+    });
+
+    // Weight words based on knowledge level and recent usage
+    const weightedVocab = vocabulary.flatMap(word => {
+        // Base weight from knowledge level (lower level = higher weight)
+        const baseWeight = 3 - (word.knowledgeLevel || KNOWLEDGE_LEVELS.BEGINNER);
+        
+        // Additional weight for words that haven't been used recently
+        const lastUsed = word.lastUsed || 0;
+        const timeSinceLastUse = Date.now() - lastUsed;
+        const recencyWeight = Math.min(2, Math.floor(timeSinceLastUse / (24 * 60 * 60 * 1000))); // Max 2 extra weight for words not used in 2+ days
+        
+        return Array(baseWeight + recencyWeight).fill(word);
+    });
+    
+    // Select 10 random words, ensuring no duplicates
+    const selectedWords = new Set();
+    const shuffled = [...weightedVocab].sort(() => Math.random() - 0.5);
+    const uniqueWords = [];
+    
+    for (const word of shuffled) {
+        if (!selectedWords.has(word.word)) {
+            selectedWords.add(word.word);
+            uniqueWords.push(word);
+            if (uniqueWords.length === 10) break;
+        }
+    }
+    
+    matchingQuiz.terms = uniqueWords.map(item => item.word);
+    matchingQuiz.definitions = uniqueWords.map(item => item.definition);
+
+    // Combine terms and definitions and shuffle them
+    const allItems = [
+        ...matchingQuiz.terms.map(term => ({ type: 'term', content: term })),
+        ...matchingQuiz.definitions.map(def => ({ type: 'definition', content: def }))
+    ].sort(() => Math.random() - 0.5);
+
+    // Update UI with scattered layout
+    const container = document.getElementById('matchingTerms');
+    container.innerHTML = allItems
+        .map(item => {
+            const dataAttr = item.type === 'term' ? 'term' : 'definition';
+            return `<button class="list-group-item list-group-item-action" 
+                           data-${dataAttr}="${item.content}">${item.content}</button>`;
+        })
+        .join('');
+
+    // Show/hide appropriate buttons
+    document.getElementById('startMatching').classList.add('d-none');
+    document.getElementById('matchingResults').classList.add('d-none');
+    document.getElementById('matchingContainer').classList.remove('d-none');
+
+    // Start timer
+    matchingQuiz.startTime = Date.now();
+    updateTimer();
+    matchingQuiz.timer = setInterval(updateTimer, 1000);
+
+    // Add click handlers
+    addMatchingClickHandlers();
+}
+
+function addMatchingClickHandlers() {
+    const buttons = document.querySelectorAll('#matchingTerms button');
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.dataset.term) {
+                handleTermClick(button);
+            } else if (button.dataset.definition) {
+                handleDefinitionClick(button);
+            }
+        });
+    });
+}
+
+function showNotification(message) {
+    // Remove any existing notifications
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // Create and show new notification
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // Remove notification after animation completes
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+function updateLivesDisplay() {
+    const hearts = document.querySelectorAll('#matchingLives i');
+    const remainingLives = matchingQuiz.lives;
+    
+    hearts.forEach((heart, index) => {
+        if (index < remainingLives) {
+            heart.classList.remove('broken', 'heart-break');
+        } else {
+            heart.classList.add('heart-break');
+            setTimeout(() => heart.classList.add('broken'), 500);
+        }
+    });
+}
+
+function handleTermClick(termButton) {
+    // Don't allow clicking on already matched items
+    if (termButton.classList.contains('matched')) {
+        return;
+    }
+
+    // If clicking the same button that's already selected, deselect it
+    if (termButton.classList.contains('selected')) {
+        termButton.classList.remove('selected');
+        return;
+    }
+
+    const selectedTerm = termButton.dataset.term;
+    const selectedDef = document.querySelector('#matchingTerms button[data-definition].selected');
+    
+    if (selectedDef) {
+        // Check if match is correct
+        const correctDef = vocabulary.find(item => item.word === selectedTerm).definition;
+        if (selectedDef.dataset.definition === correctDef) {
+            termButton.classList.add('matched');
+            selectedDef.classList.add('matched');
+            matchingQuiz.matches.set(selectedTerm, correctDef);
+            
+            // Update word's knowledge level and last used time
+            const wordIndex = vocabulary.findIndex(item => item.word === selectedTerm);
+            if (wordIndex !== -1) {
+                const word = vocabulary[wordIndex];
+                // Increase knowledge level if not already mastered
+                if (word.knowledgeLevel < KNOWLEDGE_LEVELS.MASTERED) {
+                    word.knowledgeLevel = (word.knowledgeLevel || KNOWLEDGE_LEVELS.BEGINNER) + 1;
+                }
+                // Update last used time
+                word.lastUsed = Date.now();
+                saveVocabulary();
+            }
+
+            // Check if all matches are complete
+            if (matchingQuiz.matches.size === matchingQuiz.terms.length) {
+                clearInterval(matchingQuiz.timer);
+                endMatchingQuiz(true);
+            }
+        } else {
+            matchingQuiz.lives--;
+            updateLivesDisplay();
+            
+            // Show error notification
+            showNotification('Incorrect match! Try again.');
+
+            if (matchingQuiz.lives <= 0) {
+                clearInterval(matchingQuiz.timer);
+                endMatchingQuiz(false);
+            }
+        }
+        selectedDef.classList.remove('selected');
+    } else {
+        // Select term
+        document.querySelectorAll('#matchingTerms button[data-term]').forEach(btn => {
+            if (!btn.classList.contains('matched')) {
+                btn.classList.remove('selected');
+            }
+        });
+        termButton.classList.add('selected');
+    }
+}
+
+function handleDefinitionClick(defButton) {
+    // Don't allow clicking on already matched items
+    if (defButton.classList.contains('matched')) {
+        return;
+    }
+
+    // If clicking the same button that's already selected, deselect it
+    if (defButton.classList.contains('selected')) {
+        defButton.classList.remove('selected');
+        return;
+    }
+
+    const selectedTerm = document.querySelector('#matchingTerms button[data-term].selected');
+    
+    if (selectedTerm) {
+        // Check if match is correct
+        const correctDef = vocabulary.find(item => item.word === selectedTerm.dataset.term).definition;
+        if (defButton.dataset.definition === correctDef) {
+            selectedTerm.classList.add('matched');
+            defButton.classList.add('matched');
+            matchingQuiz.matches.set(selectedTerm.dataset.term, correctDef);
+            
+            // Update word's knowledge level and last used time
+            const wordIndex = vocabulary.findIndex(item => item.word === selectedTerm.dataset.term);
+            if (wordIndex !== -1) {
+                const word = vocabulary[wordIndex];
+                // Increase knowledge level if not already mastered
+                if (word.knowledgeLevel < KNOWLEDGE_LEVELS.MASTERED) {
+                    word.knowledgeLevel = (word.knowledgeLevel || KNOWLEDGE_LEVELS.BEGINNER) + 1;
+                }
+                // Update last used time
+                word.lastUsed = Date.now();
+                saveVocabulary();
+            }
+
+            // Check if all matches are complete
+            if (matchingQuiz.matches.size === matchingQuiz.terms.length) {
+                clearInterval(matchingQuiz.timer);
+                endMatchingQuiz(true);
+            }
+        } else {
+            matchingQuiz.lives--;
+            updateLivesDisplay();
+            
+            // Show error notification
+            showNotification('Incorrect match! Try again.');
+
+            if (matchingQuiz.lives <= 0) {
+                clearInterval(matchingQuiz.timer);
+                endMatchingQuiz(false);
+            }
+        }
+        selectedTerm.classList.remove('selected');
+    } else {
+        // Select definition
+        document.querySelectorAll('#matchingTerms button[data-definition]').forEach(btn => {
+            if (!btn.classList.contains('matched')) {
+                btn.classList.remove('selected');
+            }
+        });
+        defButton.classList.add('selected');
+    }
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - matchingQuiz.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('matchingTimer').textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function endMatchingQuiz(isWin) {
+    clearInterval(matchingQuiz.timer);
+    
+    // Calculate final time
+    const elapsed = Math.floor((Date.now() - matchingQuiz.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Update best time if won and time is better
+    if (isWin) {
+        const currentBestTime = parseTime(matchingQuiz.bestTime);
+        if (matchingQuiz.bestTime === '--:--' || elapsed < currentBestTime) {
+            matchingQuiz.bestTime = timeString;
+            localStorage.setItem('matchingBestTime', timeString);
+            document.getElementById('bestTime').textContent = timeString;
+        }
+    }
+    
+    // Show results
+    const resultsDiv = document.getElementById('matchingResults');
+    resultsDiv.innerHTML = `
+        <h4>Matching Results</h4>
+        <div class="alert ${isWin ? 'alert-success' : 'alert-danger'}">
+            <h5>${isWin ? 'Congratulations!' : 'Game Over'}</h5>
+            <p>${isWin ? 'You matched all terms correctly!' : 'You ran out of lives!'}</p>
+        </div>
+        <p>Time: <span id="finalTime">${timeString}</span></p>
+        <p>Best Time: <span id="displayBestTime">${matchingQuiz.bestTime}</span></p>
+        <button class="btn btn-primary" id="restartMatching">Try Again</button>
+    `;
+    
+    document.getElementById('matchingContainer').classList.add('d-none');
+    resultsDiv.classList.remove('d-none');
+
+    // Add event listener to the new restart button
+    document.getElementById('restartMatching').addEventListener('click', startMatchingQuiz);
+}
+
+function parseTime(timeString) {
+    if (timeString === '--:--') return Infinity;
+    const [minutes, seconds] = timeString.split(':').map(Number);
+    return minutes * 60 + seconds;
+}
+
+// Add event listeners for matching quiz
+document.getElementById('startMatching').addEventListener('click', startMatchingQuiz);
+
+// Add event listener for clear best time button
+document.getElementById('clearBestTime').addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear your best time?')) {
+        matchingQuiz.bestTime = '--:--';
+        localStorage.removeItem('matchingBestTime');
+        document.getElementById('bestTime').textContent = '--:--';
+    }
+});
+
+// Add event listener for deselect button
+document.getElementById('deselectBtn').addEventListener('click', () => {
+    document.querySelectorAll('#matchingTerms button').forEach(btn => {
+        if (!btn.classList.contains('matched')) {
+            btn.classList.remove('selected');
+        }
+    });
+}); 

@@ -715,4 +715,173 @@ body {
 .footer-divider {
     color: rgba(255, 255, 255, 0.5);
     margin: 0 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 600px;
+    }
+
+    .table td, .table th {
+        white-space: normal;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.8rem !important;
+        font-size: 0.9rem;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .footer-divider {
+        display: none;
+    }
+
+    /* Flashcard adjustments */
+    .flashcard {
+        min-height: 200px;
+    }
+
+    #flashcardWord {
+        font-size: 1.8rem;
+    }
+
+    #flashcardDefinition {
+        font-size: 1rem;
+    }
+
+    /* Quiz adjustments */
+    #quizOptions .btn {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    /* Matching quiz adjustments */
+    #matchingTerms,
+    #matchingDefinitions {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    #matchingTerms button,
+    #matchingDefinitions button {
+        font-size: 0.85rem;
+        padding: 0.3rem;
+    }
+
+    /* Form adjustments */
+    .form-control, .form-select {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    /* Pagination adjustments */
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.2rem;
+    }
+
+    .page-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .page-input {
+        width: 50px !important;
+    }
+}
+
+/* Additional responsive adjustments for very small screens */
+@media (max-width: 480px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .row {
+        margin-left: -5px;
+        margin-right: -5px;
+    }
+
+    .col-md-6, .col-md-8, .col-md-4 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .table td, .table th {
+        padding: 0.4rem;
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    #matchingTerms,
+    #matchingDefinitions {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Fix for table overflow */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Ensure buttons don't overflow on mobile */
+.btn {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Make form inputs more mobile-friendly */
+.form-control, .form-select {
+    max-width: 100%;
+}
+
+/* Ensure images are responsive */
+img {
+    max-width: 100%;
+    height: auto;
 } 

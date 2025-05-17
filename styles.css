@@ -36,14 +36,14 @@ body {
 
 .nav-link {
     color: rgba(255, 255, 255, 0.95) !important;
-    font-weight: 600;
+    font-weight: 500;
     padding: 0.7rem 1.2rem !important;
     margin: 0 0.3rem;
     border-radius: 8px;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    text-transform: none;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
 }
 
 .nav-link:hover {
@@ -212,19 +212,35 @@ body {
 }
 
 .table thead th {
-    background: linear-gradient(45deg, #4b6cb7, #182848);
+    background: #4b6cb7;
     color: white;
     font-weight: 500;
     border: none;
     padding: 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table thead th:last-child {
+    border-right: none;
+}
+
+.table td {
+    padding: 0.8rem 1rem;
+    border-right: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.table td:last-child {
+    border-right: none;
 }
 
 .table tbody tr {
     transition: background-color 0.3s ease;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-.table tbody tr:hover {
-    background-color: rgba(75, 108, 183, 0.05);
+.table tbody tr:last-child {
+    border-bottom: none;
 }
 
 #quizOptions .btn {
@@ -368,4 +384,328 @@ body {
 
 .bg-success {
     background: linear-gradient(45deg, #11998e, #38ef7d) !important;
+}
+
+/* Matching Quiz Styles */
+#matchingTerms,
+#matchingDefinitions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.4rem;
+    padding: 0.4rem;
+    min-height: 180px;
+    position: relative;
+}
+
+#matchingTerms button,
+#matchingDefinitions button {
+    text-align: center;
+    transition: all 0.2s ease;
+    height: 100%;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative;
+    margin: 0.2rem;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+#matchingTerms button:hover,
+#matchingDefinitions button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1;
+}
+
+#matchingTerms button.selected,
+#matchingDefinitions button.selected {
+    background-color: #e9ecef;
+    border-color: #4b6cb7;
+    font-weight: bold;
+    z-index: 2;
+}
+
+#matchingTerms button.matched,
+#matchingDefinitions button.matched {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+    cursor: default;
+    opacity: 0.8;
+}
+
+#matchingTerms button.matched:hover,
+#matchingDefinitions button.matched:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1;
+}
+
+.matching-container {
+    position: relative;
+    min-height: 250px;
+    max-height: 450px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.matching-section-title {
+    text-align: center;
+    margin-bottom: 0.4rem;
+    color: #1a2a6c;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+#matchingTimer,
+#matchingLives {
+    font-size: 1.1em;
+    padding: 0.5em 1em;
+    margin: 0.5rem;
+}
+
+#bestTime {
+    font-size: 1.1em;
+    padding: 0.5em 1em;
+    margin: 0.5rem;
+}
+
+.matching-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.matching-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    animation: fadeInOut 2s ease-in-out;
+    width: auto;
+    min-width: 200px;
+    text-align: center;
+    pointer-events: none;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -20px); }
+    20% { opacity: 1; transform: translate(-50%, 0); }
+    80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+/* Fix pagination styles */
+.pagination {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    height: 38px;
+}
+
+.pagination .page-link {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+}
+
+.pagination .page-item {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.pagination .page-input {
+    height: 100%;
+    border-radius: 0;
+    border: 1px solid #dee2e6;
+    padding: 0.25rem;
+    margin: 0;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+.pagination .page-input::-webkit-outer-spin-button,
+.pagination .page-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pagination .page-item:not(.disabled) .page-link {
+    cursor: pointer;
+}
+
+.pagination .page-item.disabled .page-link {
+    cursor: not-allowed;
+}
+
+/* Ensure table doesn't affect pagination position */
+.table-container {
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.table {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+#pagination {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 10px 0;
+    border-top: 1px solid #dee2e6;
+    z-index: 1;
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Custom scrollbar for matching container */
+.matching-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.matching-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.matching-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.matching-container::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
+}
+
+#matchingLives {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background-color: #dc3545;
+}
+
+#matchingLives i {
+    color: white;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+#matchingLives i.broken {
+    color: rgba(255, 255, 255, 0.3);
+    transform: scale(0.8);
+}
+
+#deselectBtn {
+    transition: all 0.3s ease;
+}
+
+#deselectBtn:hover {
+    background-color: #e9ecef;
+    transform: scale(1.05);
+}
+
+/* Add animation for heart breaking */
+@keyframes heartBreak {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(0.8); opacity: 0.3; }
+}
+
+.heart-break {
+    animation: heartBreak 0.5s ease-in-out forwards;
+}
+
+/* Notification popup styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: #dc3545;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+    transform: translateX(0);
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.footer {
+    background: #4b6cb7;
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-text {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 0.2s ease;
+}
+
+.footer-link:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.footer-icon {
+    font-size: 1.2rem;
+}
+
+.footer-divider {
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 1rem;
 } 

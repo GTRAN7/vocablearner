@@ -437,6 +437,10 @@ flipCard.addEventListener('click', () => {
     isFlipped = !isFlipped;
     const flashcard = document.querySelector('.flashcard');
     flashcard.classList.toggle('flipped');
+    
+    // Add wiggle animation
+    flashcard.classList.add('flip-wiggle');
+    setTimeout(() => flashcard.classList.remove('flip-wiggle'), 300);
 });
 
 // Add click to flip functionality
@@ -449,19 +453,29 @@ document.querySelector('.flashcard').addEventListener('click', (e) => {
 // Add shuffle functionality
 function toggleShuffle() {
     isShuffled = !isShuffled;
-    if (isShuffled) {
-        // Shuffle the vocabulary array
-        vocabulary = vocabulary.sort(() => Math.random() - 0.5);
-        currentCardIndex = 0;
-        updateFlashcard();
-        updateKnowledgeLevelDisplay();
-    } else {
-        // Restore original order
-        vocabulary = JSON.parse(localStorage.getItem('vocabulary')) || [];
-        currentCardIndex = 0;
-        updateFlashcard();
-        updateKnowledgeLevelDisplay();
-    }
+    const flashcard = document.querySelector('.flashcard');
+    
+    // Add shuffle animation
+    flashcard.classList.add('shuffling');
+    
+    setTimeout(() => {
+        if (isShuffled) {
+            // Shuffle the vocabulary array
+            vocabulary = vocabulary.sort(() => Math.random() - 0.5);
+            currentCardIndex = 0;
+            updateFlashcard();
+            updateKnowledgeLevelDisplay();
+        } else {
+            // Restore original order
+            vocabulary = JSON.parse(localStorage.getItem('vocabulary')) || [];
+            currentCardIndex = 0;
+            updateFlashcard();
+            updateKnowledgeLevelDisplay();
+        }
+        
+        // Remove shuffle animation
+        flashcard.classList.remove('shuffling');
+    }, 300);
 }
 
 // Add event listener for shuffle button
@@ -529,16 +543,28 @@ document.addEventListener('keydown', (e) => {
 // Update knowledge level display when changing cards
 prevCard.addEventListener('click', () => {
     if (vocabulary.length === 0) return;
-    currentCardIndex = (currentCardIndex - 1 + vocabulary.length) % vocabulary.length;
-    updateFlashcard();
-    updateKnowledgeLevelDisplay();
+    const flashcard = document.querySelector('.flashcard');
+    flashcard.classList.add('card-change');
+    
+    setTimeout(() => {
+        currentCardIndex = (currentCardIndex - 1 + vocabulary.length) % vocabulary.length;
+        updateFlashcard();
+        updateKnowledgeLevelDisplay();
+        flashcard.classList.remove('card-change');
+    }, 200);
 });
 
 nextCard.addEventListener('click', () => {
     if (vocabulary.length === 0) return;
-    currentCardIndex = (currentCardIndex + 1) % vocabulary.length;
-    updateFlashcard();
-    updateKnowledgeLevelDisplay();
+    const flashcard = document.querySelector('.flashcard');
+    flashcard.classList.add('card-change');
+    
+    setTimeout(() => {
+        currentCardIndex = (currentCardIndex + 1) % vocabulary.length;
+        updateFlashcard();
+        updateKnowledgeLevelDisplay();
+        flashcard.classList.remove('card-change');
+    }, 200);
 });
 
 // Initialize knowledge level display
@@ -1175,11 +1201,3 @@ document.getElementById('clearBestTime').addEventListener('click', () => {
     }
 });
 
-// Add event listener for deselect button
-document.getElementById('deselectBtn').addEventListener('click', () => {
-    document.querySelectorAll('#matchingTerms button').forEach(btn => {
-        if (!btn.classList.contains('matched')) {
-            btn.classList.remove('selected');
-        }
-    });
-}); 
